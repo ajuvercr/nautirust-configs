@@ -1,0 +1,2 @@
+channels = "channels/*.json"
+runners = "runners/*/runner.json"

@@ -1,0 +1,23 @@
+{
+  "id": "RMLStep",
+  "runnerId": "RMLStreamerRunner",
+  "config": {
+    "bulk": true
+  },
+  "args": [
+    {
+      "id": "rmlmapping",
+      "type": "string"
+    },
+    {
+      "id": "inputStream",
+      "type": "streamReader",
+      "sourceIds": ["rmls:logicalSource#1"]
+    },
+    {
+      "id": "outputStream",
+      "type": "streamWriter",
+      "targetIds": ["rmls:logicaltarget#1"]
+    }
+  ]
+}

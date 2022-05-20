@@ -1,0 +1,6 @@
+[submodule "runners/js-runner"]
+	path = runners/js-runner
+	url = git@github.com:ajuvercr/js-runner.git
+[submodule "runners/RMLStreamerRunner"]
+	path = runners/RMLStreamerRunner
+	url = git@github.com:s-minoo/RMLStreamerRunner.git

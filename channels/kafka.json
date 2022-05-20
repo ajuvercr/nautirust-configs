@@ -1,0 +1,15 @@
+
+{
+  "id": "kafka",
+  "requiredFields": [
+    "topic",
+    "consumer",
+    "producer",
+    "broker"
+  ],
+  "options": [
+    {"topic": {"name": "inputTopic"}, "consumer": {"groupId": "group1"}, "producer": {}, "broker": {"hosts": ["localhost:19092"], "clientId": "mycliend"}},
+    {"topic": {"name": "outputTopic"}, "consumer": {"groupId": "group1"}, "producer": {}, "broker": {"hosts": ["localhost:19092"], "clientId": "mycliend"}},
+    {"topic": {"name": "epicTopic"}, "consumer": {"groupId": "group1"}, "producer": {}, "broker": {"hosts": ["localhost:19092"], "clientId": "mycliend"}}
+  ]
+}

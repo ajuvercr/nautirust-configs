@@ -1,0 +1,40 @@
+{
+  "id": "bucketstep",
+  "runnerId": "JsRunner",
+  "config": {
+    "jsFile": "lib/main.js",
+    "methodName": "doTheBucketization"
+  },
+  "args": [
+    {
+      "id": "reader",
+      "type": "streamReader",
+      "sourceIds": [
+        "data" ,"metadata"
+      ]
+    },
+    {
+      "id": "writer",
+      "type": "streamWriter",
+      "targetIds": [
+        "data" ,"metadata"
+      ]
+    },
+    {
+      "id": "kind",
+      "type": "string"
+    },
+    {
+      "id": "pagesize",
+      "type": "int"
+    },
+    {
+      "id": "propertyPath",
+      "type": "string"
+    },
+    {
+      "id": "savePath",
+      "type": "string"
+    }
+  ]
+}
