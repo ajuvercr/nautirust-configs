@@ -19,24 +19,6 @@ export function createNSThing(thing: string, ns: NS): NamedNode {
     return namedNode(ns + thing)
 }
 
-/*
-
-We need:
-- quad input things or something
-  - for initial sds description
-  - for validation things
-- bucketizationstep metadata
-- way to intercept the latest sds and append new data
-
-For multiple buckets we need to modify the bucketizers to allow for multiple bucket paths
-But we also need to think about a relatively correct way to describe bucketization processes
-
-... Change sds:shape shacl shape
-
-*/
-
-
-
 export type ShapeTransform = (id: NBNode | undefined, store: Store) => NBNode;
 export type AddProcess = (used: NBNode | undefined, store: Store) => NBNode;
 export type DatasetTransform = (used: NBNode | undefined, store: Store) => NBNode;
@@ -96,7 +78,6 @@ export function transformMetadata(shT: ShapeTransform, gp: AddProcess, itemType:
 
         const latest = getLatestStream(store);
         const latestShape = !!latest ? getLatestShape(latest, store) : undefined;
-        const parser = new Parser();
 
         const activityId = gp(latest, store);
 
