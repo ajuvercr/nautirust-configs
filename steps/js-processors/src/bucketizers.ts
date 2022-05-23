@@ -23,7 +23,7 @@ function createBucketizer(type: BucketTypes, options: BucketizerOptions, state?:
         case "subject": return SubjectPageBucketizer.build(options, state);
         case "substring": return SubstringBucketizer.build(options, state);
     }
-    throw "nope"
+    throw "no bucketetizer with type " + type
 }
 
 async function readState(path: string): Promise<any | undefined> {
@@ -55,7 +55,7 @@ function shapeTransform(id: Term | undefined, store: Store): BlankNode | NamedNo
         store.addQuads(quads);
         return newId
     } else {
-        throw "nope"
+        throw "no shape transform"
 
     }
 }
@@ -76,11 +76,11 @@ function addProcess(id: NBNode | undefined, store: Store): NBNode {
     return newId;
 }
 
-export async function doTheBucketization(sr: SR<Data>, sw: SW<Data>, type: BucketTypes, pageSize: number, propertyPath: string, savePath: string) {
-    const options = { pageSize, propertyPath };
+export async function doTheBucketization(sr: SR<Data>, sw: SW<Data>, propertyPath: string, savePath: string) {
+    const options = { pageSize: 2, propertyPath };
 
     const state = await readState(savePath);
-    const bucketizer = await createBucketizer(type, options, state);
+    const bucketizer = await createBucketizer("basic", options, state);
 
     Cleanup(async () => {
         const state = bucketizer.exportState()
@@ -91,10 +91,10 @@ export async function doTheBucketization(sr: SR<Data>, sw: SW<Data>, type: Bucke
         if (!t.length) return;
 
         const sub = t[0].subject;
-        console.log("Some bucketization")
 
         bucketizer.bucketize(t, sub.value);
 
+        console.log("Pushing thing bucketized!")
         await sw.data.push(t);
     });
 

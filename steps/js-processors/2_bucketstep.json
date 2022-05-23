@@ -21,14 +21,6 @@
       ]
     },
     {
-      "id": "kind",
-      "type": "string"
-    },
-    {
-      "id": "pagesize",
-      "type": "int"
-    },
-    {
       "id": "propertyPath",
       "type": "string"
     },

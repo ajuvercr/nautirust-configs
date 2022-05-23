@@ -1,0 +1,55 @@
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix p-plan: <http://purl.org/net/p-plan#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix sds:    <http://semweb.mmlab.be/ns/sds#> .
+@prefix dcat:   <https://www.w3.org/ns/dcat#> .
+@prefix ex:     <http://example.org/ns#>.
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#>.
+@prefix sh:     <http://www.w3.org/ns/shacl#>.
+@prefix void:   <http://rdfs.org/ns/void#> .
+@prefix :       <http://me#> .
+
+
+:somePlan a p-plan:Plan;
+  rdfs:comment "A epic plan to map csv file to a LDES".
+
+
+:dataset a dcat:Dataset;
+  dcat:title "Epic dataset";
+  dcat:publisher [
+    foaf:name "Arthur Vercruysse"
+  ];
+  dcat:identifier <http://localhost:3000/ldes>.
+
+
+ex:PointShape a sh:NodeShape;
+  sh:targetClass ex:Point; 
+  sh:property [
+    sh:path ex:x;
+    sh:datatype xsd:integer;
+    sh:minCount 1;
+    sh:maxCount 1;
+  ], [
+    sh:path ex:y;
+    sh:datatype xsd:integer;
+    sh:minCount 1;
+    sh:maxCount 1;
+  ].
+
+
+:readCsv a p-plan:Activity;
+  rdfs:comment "Reads csv file and converts to rdf members";
+  prov:used [
+    a void:Dataset;
+    void:dataDump <file:///data/input.csv>;
+  ].
+
+
+:csvStream a sds:Stream;
+    p-plan:wasGeneratedBy :readCsv;
+    sds:carries :csvShape; 
+    sds:dataset :dataset.
+
+:csvShape a sds:Member;
+  sds:Shape ex:PointShape.
