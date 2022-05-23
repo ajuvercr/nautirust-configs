@@ -12,17 +12,10 @@ cd runners/js-runner
 npm i
 npm run build
 
-cd ..
-
-# fix RMLRunner specific things
-
-cd RMLStreamerRunner 
-
-./gradlew build
-cd ..
+cd ../..
 
 
-nautirust --config ./orchestrator.toml -o run.json generate steps/js-processors/1_csvstep.json steps/rmlstep.json
+nautirust --config ./orchestrator.toml generate -o run.json steps/js-processors/1_csvstep.json steps/rmlstep.json
 
 ## Enter information as wanted
 ### mapping file is "mapping.ttl"
