@@ -8,7 +8,7 @@
               "broker": {
                 "clientId": "mycliend",
                 "hosts": [
-                  "broker:9092"
+                  "localhost:19092"
                 ]
               },
               "consumer": {
@@ -30,7 +30,7 @@
               "broker": {
                 "clientId": "mycliend",
                 "hosts": [
-                  "broker:9092"
+                  "localhost:19092"
                 ]
               },
               "consumer": {
@@ -70,6 +70,8 @@
           }
         ],
         "config": {
+          "hostName": "localhost:19092",
+          "dockerName": "broker:9092",
           "bulk": true
         },
         "id": "RMLStep",

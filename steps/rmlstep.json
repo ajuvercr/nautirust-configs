@@ -2,6 +2,8 @@
   "id": "RMLStep",
   "runnerId": "RMLStreamerRunner",
   "config": {
+    "hostName": "localhost:19092",
+    "dockerName": "broker:9092",
     "bulk": true
   },
   "args": [
@@ -12,12 +14,16 @@
     {
       "id": "inputStream",
       "type": "streamReader",
-      "sourceIds": ["rmls:logicalSource#1"]
+      "sourceIds": [
+        "rmls:logicalSource#1"
+      ]
     },
     {
       "id": "outputStream",
       "type": "streamWriter",
-      "targetIds": ["rmls:logicaltarget#1"]
+      "targetIds": [
+        "rmls:logicaltarget#1"
+      ]
     }
   ]
 }
