@@ -10,16 +10,16 @@ function shapeTransform(id: Term | undefined, store: Store): BlankNode | NamedNo
         return newId
     }
 
-    const intTerm = createNSThing("integer", "http://www.w3.org/2001/XMLSchema#");
+    const intTerm = createNSThing("http://www.w3.org/2001/XMLSchema#", "integer");
 
-    const p1 = createProperty(store, createNSThing("x", "http://example.org/ns#"), intTerm, 1, 1);
-    const p2 = createProperty(store, createNSThing("y", "http://example.org/ns#"), intTerm, 1, 1);
+    const p1 = createProperty(store, createNSThing("http://example.org/ns#", "x"), intTerm, undefined, 1, 1);
+    const p2 = createProperty(store, createNSThing("http://example.org/ns#", "y"), intTerm, undefined, 1, 1);
 
-    store.addQuad(newId, ty, createNSThing("NodeShape", "http://www.w3.org/ns/shacl#"))
-    store.addQuad(newId, createNSThing("targetClass", "http://www.w3.org/ns/shacl#"), createNSThing("Point", "http://example.org/ns#"));
+    store.addQuad(newId, ty, createNSThing("http://www.w3.org/ns/shacl#", "NodeShape"))
+    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "targetClass"), createNSThing("http://example.org/ns#", "Point"));
 
-    store.addQuad(newId, createNSThing("property", "http://www.w3.org/ns/shacl#"), p1);
-    store.addQuad(newId, createNSThing("property", "http://www.w3.org/ns/shacl#"), p2);
+    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "property"), p1);
+    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "property"), p2);
 
     return newId;
 }
@@ -28,15 +28,15 @@ function addProcess(id: NBNode | undefined, store: Store): NBNode {
     const newId = store.createBlankNode();
     const time = new Date().getTime();
 
-    store.addQuad(newId, ty, createNSThing("Activity", "http://purl.org/net/p-plan#"));
+    store.addQuad(newId, ty, createNSThing("http://purl.org/net/p-plan#", "Activity"));
     if (id)
-        store.addQuad(newId, createNSThing("used", "http://www.w3.org/ns/prov#"), id);
-    store.addQuad(newId, createNSThing("startedAtTime", "http://www.w3.org/ns/prov#"), literal(time));
+        store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "used"), id);
+    store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "startedAtTime"), literal(time));
 
     return newId;
 }
 
-type Data = {"metadata": Quad[]};
+type Data = { "metadata": Quad[] };
 export function updateMetadata(sr: SR<Data>, sw: SW<Data>) {
     const f = transformMetadata(shapeTransform, addProcess, "sds:Member");
 

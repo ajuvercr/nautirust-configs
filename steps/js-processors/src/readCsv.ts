@@ -36,7 +36,7 @@ export function readCsvAsRDF(location: string, sw: SW<Data>): Promise<void> {
 
     const handler = (data: any[]) => {
         const out: Quad[] = [];
-        const id = blankNode();
+        const id = namedNode("http://example.org/id/" + Math.random());
 
         for (let i = 0; i < Math.min(data.length, headers.length); i++) {
             out.push(new Quad(id, namedNode("http://example.org/ns#" + headers[i]), literal(data[i])))

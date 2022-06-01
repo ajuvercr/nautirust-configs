@@ -1,30 +1,12 @@
-import { BasicBucketizer, GeospatialBucketizer, SubjectPageBucketizer, SubstringBucketizer } from "@treecg/bucketizers";
-import { BucketizerOptions } from "@treecg/types";
+import { BasicBucketizer, createBucketizerLD } from "@treecg/bucketizers";
 import { writeFileSync } from "fs";
 import { readFile } from "fs/promises";
-import { BlankNode, NamedNode, Quad, Store, Term } from "n3";
+import { BlankNode, NamedNode, Parser, Quad, Store, Term } from "n3";
 import { createNSThing, createProperty, defaultGraph, literal, NBNode, SR, SW, transformMetadata, ty } from "./core";
 import { Cleanup } from './exitHandler';
 
-
-interface Bucketizer {
-    bucketize: (quads: Quad[], memberId: string) => void;
-    exportState: () => any;
-    importState: (state: any) => void;
-}
-
 type Data = { "data": Quad[], "metadata": Quad[] };
 
-type BucketTypes = "basic" | "geo" | "substring" | "subject";
-function createBucketizer(type: BucketTypes, options: BucketizerOptions, state?: any): Promise<Bucketizer> {
-    switch (type) {
-        case "basic": return BasicBucketizer.build(options, state);
-        case "geo": return GeospatialBucketizer.build(options, 2, state);
-        case "subject": return SubjectPageBucketizer.build(options, state);
-        case "substring": return SubstringBucketizer.build(options, state);
-    }
-    throw "no bucketetizer with type " + type
-}
 
 async function readState(path: string): Promise<any | undefined> {
     try {
@@ -40,18 +22,18 @@ async function writeState(path: string, content: any): Promise<void> {
     writeFileSync(path, str, { encoding: "utf-8" })
 }
 
-function shapeTransform(id: Term | undefined, store: Store): BlankNode | NamedNode {
+function shapeTransform(id: Term | undefined, store: Store, property: NBNode): BlankNode | NamedNode {
+    console.log("transforming shape")
     const newId = store.createBlankNode();
     if (id) {
-        const intTerm = createNSThing("integer", "http://www.w3.org/2001/XMLSchema#");
-        const p1 = createProperty(store, createNSThing("bucket", "https://w3id.org/ldes#"), intTerm, 1, 1);
+        const p1 = createProperty(store, property, undefined, undefined, 1, 1);
         const quads = store.getQuads(id, null, null, defaultGraph);
 
         for (let quad of quads) {
             store.addQuad(newId, quad.predicate, quad.object);
         }
 
-        store.addQuad(newId, createNSThing("property", "http://www.w3.org/ns/shacl#"), p1);
+        store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "property"), p1);
         store.addQuads(quads);
         return newId
     } else {
@@ -60,27 +42,50 @@ function shapeTransform(id: Term | undefined, store: Store): BlankNode | NamedNo
     }
 }
 
-function addProcess(id: NBNode | undefined, store: Store): NBNode {
+function addProcess(id: NBNode | undefined, store: Store, strategyId: NBNode, bucketizeConfig: Quad[]): NBNode {
     const newId = store.createBlankNode();
     const time = new Date().getTime();
 
-    store.addQuad(newId, ty, createNSThing("Activity", "http://purl.org/net/p-plan#"));
-    store.addQuad(newId, ty, createNSThing("Bucketization", "https://w3id.org/ldes#"));
+    store.addQuad(newId, ty, createNSThing("http://purl.org/net/p-plan#", "Activity"));
+    store.addQuad(newId, ty, createNSThing("https://w3id.org/ldes#", "Bucketization"));
+
+    store.addQuads(bucketizeConfig);
+
+    store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "startedAtTime"), literal(time));
+    store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "used"), strategyId);
     if (id)
-        store.addQuad(newId, createNSThing("used", "http://www.w3.org/ns/prov#"), id);
-    store.addQuad(newId, createNSThing("startedAtTime", "http://www.w3.org/ns/prov#"), literal(time));
-    store.addQuad(newId, createNSThing("path", "https://w3id.org/ldes#"), createNSThing("bucket", "https://w3id.org/ldes#"));
-    store.addQuad(newId, createNSThing("bucketType", "https://w3id.org/ldes#"), literal("basic"));
-    store.addQuad(newId, createNSThing("propertyPath", "https://w3id.org/ldes#"), createNSThing("x", "http://example.org/ns#"));
+        store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "used"), id);
 
     return newId;
 }
 
-export async function doTheBucketization(sr: SR<Data>, sw: SW<Data>, propertyPath: string, savePath: string) {
-    const options = { pageSize: 2, propertyPath };
+export async function doTheBucketization(sr: SR<Data>, sw: SW<Data>, location: string, savePath: string) {
+    const content = await readFile(location, { encoding: "utf-8" });
+    const quads = new Parser().parse(content);
+
+
+    const quadMemberId = <NBNode>quads.find(quad =>
+        quad.predicate.equals(ty) && quad.object.equals(createNSThing("https://w3id.org/ldes#", "BucketizeStrategy"))
+    )!.subject;
+
+    const bucketProperty = <NBNode>(quads.find(quad =>
+        quad.subject.equals(quadMemberId) && quad.predicate.equals(createNSThing("https://w3id.org/ldes#", "bucketProperty"))
+    )?.object || createNSThing("https://w3id.org/ldes#", "bucket"));
+
+
+    const f = transformMetadata((x, y) => shapeTransform(x, y, bucketProperty), (x, y) => addProcess(x, y, quadMemberId, quads), "sds:Member");
+    sr.metadata.data(
+        quads => sw.metadata.push(f(quads))
+    );
+    if(sr.metadata.lastElement) {
+        sw.metadata.push(f(sr.metadata.lastElement));
+    }
+
 
     const state = await readState(savePath);
-    const bucketizer = await createBucketizer("basic", options, state);
+    const bucketizer = await createBucketizerLD(quads);
+    if (state)
+        bucketizer.importState(state);
 
     Cleanup(async () => {
         const state = bucketizer.exportState()
@@ -97,10 +102,4 @@ export async function doTheBucketization(sr: SR<Data>, sw: SW<Data>, propertyPat
         console.log("Pushing thing bucketized!")
         await sw.data.push(t);
     });
-
-    const f = transformMetadata(shapeTransform, addProcess, "sds:Member");
-
-    sr.metadata.data(
-        quads => sw.metadata.push(f(quads))
-    );
 }
