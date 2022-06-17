@@ -1,18 +1,21 @@
+import { XSD } from "@treecg/types";
 import { parse } from "csv-parse";
 import { createReadStream } from "fs";
-import { Quad } from "n3";
-import { blankNode, literal, namedNode, SW } from "./core";
+import { DataFactory, Quad } from "n3";
+import { SW } from "./core";
 
-type Data = { data: Quad[] };
+const { namedNode, literal, quad } = DataFactory;
 
-function createTimedOutPusher(things: any[], sw: SW<Data>) {
+type Data<T = Quad[]> = { data: T };
+
+function createTimedOutPusher<T extends Quad[]>(things: T[], sw: SW<Data<T>>, onSend?: (item: T) => T) {
     return setTimeout(() => {
         setInterval(() => {
             const thing = things.shift()
             if (thing) {
-                sw.data.push(thing);
+                const foobar = onSend ? onSend(thing) : thing
+                sw.data.push(foobar);
             }
-
         }, 1000)
     }, 2000);
 }
@@ -30,9 +33,9 @@ function readCsv(location: string, handler: (item: any[]) => void): Promise<void
 
 export function readCsvAsRDF(location: string, sw: SW<Data>): Promise<void> {
     let headers: string[] = ["x", "y"];
-    const things: any[] = [];
+    const things: Quad[][] = [];
 
-    createTimedOutPusher(things, sw);
+    createTimedOutPusher(things, sw, (things: Quad[]) => [...things, new Quad(things[0].subject, namedNode("http://example.org/ns#time"), literal(new Date().toISOString(), XSD.terms.dateTime))]);
 
     const handler = (data: any[]) => {
         const out: Quad[] = [];

@@ -1,25 +1,26 @@
-import { BlankNode, NamedNode, Parser, Quad, Store, Term } from "n3";
-import { createNSThing, createProperty, defaultGraph, literal, NBNode, SR, SW, transformMetadata, ty } from "./core";
+import { BlankNode, NamedNode, Quad, Store, Term } from "n3";
+import { createProperty, literal, NBNode, SR, SW, transformMetadata } from "./core";
+import { EX, PPLAN, PROV, RDF, SHACL, XSD } from "@treecg/types";
 
 
 function shapeTransform(id: Term | undefined, store: Store): BlankNode | NamedNode {
     const newId = store.createBlankNode();
     if (id) {
-        const quads = store.getQuads(id, null, null, defaultGraph);
+        const quads = store.getQuads(id, null, null, null);
         store.addQuads(quads);
         return newId
     }
 
-    const intTerm = createNSThing("http://www.w3.org/2001/XMLSchema#", "integer");
+    const intTerm = XSD.terms.integer;
 
-    const p1 = createProperty(store, createNSThing("http://example.org/ns#", "x"), intTerm, undefined, 1, 1);
-    const p2 = createProperty(store, createNSThing("http://example.org/ns#", "y"), intTerm, undefined, 1, 1);
+    const p1 = createProperty(store, <NBNode>EX.terms.custom("x"), <NBNode>intTerm, undefined, 1, 1);
+    const p2 = createProperty(store, <NBNode>EX.terms.custom("y"), <NBNode>intTerm, undefined, 1, 1);
 
-    store.addQuad(newId, ty, createNSThing("http://www.w3.org/ns/shacl#", "NodeShape"))
-    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "targetClass"), createNSThing("http://example.org/ns#", "Point"));
+    store.addQuad(newId, RDF.terms.type, SHACL.terms.NodeShape)
+    store.addQuad(newId, SHACL.terms.targetClass, EX.terms.custom("Point"));
 
-    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "property"), p1);
-    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "property"), p2);
+    store.addQuad(newId, SHACL.terms.property, p1);
+    store.addQuad(newId, SHACL.terms.property, p2);
 
     return newId;
 }
@@ -28,10 +29,10 @@ function addProcess(id: NBNode | undefined, store: Store): NBNode {
     const newId = store.createBlankNode();
     const time = new Date().getTime();
 
-    store.addQuad(newId, ty, createNSThing("http://purl.org/net/p-plan#", "Activity"));
+    store.addQuad(newId, RDF.terms.type, PPLAN.terms.Activity);
     if (id)
-        store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "used"), id);
-    store.addQuad(newId, createNSThing("http://www.w3.org/ns/prov#", "startedAtTime"), literal(time));
+        store.addQuad(newId, PROV.terms.used, id);
+    store.addQuad(newId, PROV.terms.startedAtTime, literal(time));
 
     return newId;
 }

@@ -1,23 +1,12 @@
 import { Stream, Writer } from "@treecg/connector-types";
-import { BlankNode, DataFactory, DefaultGraph, NamedNode, Parser, Quad, Store, Term } from "n3";
+import { BlankNode, DataFactory, DefaultGraph, NamedNode, Quad, Store, Term } from "n3";
+import { PROV, RDF, SDS, SHACL } from "@treecg/types";
 
 
 export const { namedNode, blankNode, literal } = DataFactory;
 
 
-export type NS = "http://www.w3.org/ns/shacl#"
-    | "http://semweb.mmlab.be/ns/sds#"
-    | "http://www.w3.org/ns/prov#"
-    | "http://purl.org/net/p-plan#"
-    | "http://example.org/ns#"
-    | "http://www.w3.org/2001/XMLSchema#"
-    | "https://w3id.org/ldes#";
-
 export type NBNode = NamedNode | BlankNode;
-
-export function createNSThing(ns: NS, thing: string): NamedNode {
-    return namedNode(ns + thing)
-}
 
 export type ShapeTransform = (id: NBNode | undefined, store: Store) => NBNode;
 export type AddProcess = (used: NBNode | undefined, store: Store) => NBNode;
@@ -25,12 +14,9 @@ export type DatasetTransform = (used: NBNode | undefined, store: Store) => NBNod
 
 export type QuadsTransform = (quads: Quad[]) => Quad[];
 
-export const ty = namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-export const defaultGraph = new DefaultGraph();
-
 function getLatestStream(store: Store): NBNode | undefined {
-    const streams = store.getSubjects(ty, createNSThing("http://semweb.mmlab.be/ns/sds#", "Stream"), null)
-        .filter(sub => store.getQuads(null, createNSThing("http://www.w3.org/ns/prov#", "used"), sub, null).length === 0);
+    const streams = store.getSubjects(RDF.terms.type, SDS.terms.Stream, null)
+        .filter(sub => store.getQuads(null, PROV.terms.used, sub, null).length === 0);
 
     if (streams.length != 1) {
         console.error(`Couldn't determine previous stream, extected one got ${streams.length}`);
@@ -41,7 +27,7 @@ function getLatestStream(store: Store): NBNode | undefined {
 }
 
 function getLatestShape(streamId: Term, store: Store): NBNode | undefined {
-    const shapes = store.getObjects(streamId, createNSThing("http://semweb.mmlab.be/ns/sds#", "carries"), defaultGraph);
+    const shapes = store.getObjects(streamId, SDS.terms.carries, new DefaultGraph());
 
     if (shapes.length !== 1) {
         console.error(`A sds:stream should carry one type of members, not ${shapes.length}`)
@@ -49,7 +35,7 @@ function getLatestShape(streamId: Term, store: Store): NBNode | undefined {
     }
 
     const shapeIds = shapes.flatMap(id =>
-        store.getObjects(id, createNSThing("http://semweb.mmlab.be/ns/sds#", "Shape"), defaultGraph)
+        store.getObjects(id, SDS.terms.shape, null)
     );
 
     if (shapeIds.length !== 1) {
@@ -61,7 +47,7 @@ function getLatestShape(streamId: Term, store: Store): NBNode | undefined {
 }
 
 function getLatestDataset(streamId: Term, store: Store): NBNode | undefined {
-    const datasets = store.getObjects(streamId, createNSThing("http://semweb.mmlab.be/ns/sds#", "dataset"), defaultGraph);
+    const datasets = store.getObjects(streamId, SDS.terms.dataset, null);
 
     if (datasets.length !== 1) {
         console.error(`A sds:stream should be derived from one dataset, not ${datasets.length}`)
@@ -92,15 +78,15 @@ export function transformMetadata(shT: ShapeTransform, gp: AddProcess, itemType:
         const blank = store.createBlankNode();
         const streamId = store.createBlankNode();
 
-        store.addQuad(streamId, ty, createNSThing("http://semweb.mmlab.be/ns/sds#", "Stream"));
+        store.addQuad(streamId, RDF.terms.type, SDS.terms.Stream);
         if (datasetId) {
-            store.addQuad(streamId, createNSThing("http://semweb.mmlab.be/ns/sds#", "dataset"), datasetId);
+            store.addQuad(streamId, SDS.terms.dataset, datasetId);
         }
-        store.addQuad(streamId, createNSThing("http://semweb.mmlab.be/ns/sds#", "carries"), blank);
-        store.addQuad(streamId, createNSThing("http://www.w3.org/ns/prov#", "wasGeneratedBy"), activityId);
+        store.addQuad(streamId, SDS.terms.carries, blank);
+        store.addQuad(streamId, PROV.terms.wasGeneratedBy, activityId);
 
-        store.addQuad(blank, ty, namedNode(itemType));
-        store.addQuad(blank, createNSThing("http://semweb.mmlab.be/ns/sds#", "shape"), newShape);
+        store.addQuad(blank, RDF.terms.type, namedNode(itemType));
+        store.addQuad(blank, SDS.terms.shape, newShape);
 
 
         const out: Quad[] = [];
@@ -113,17 +99,17 @@ export function transformMetadata(shT: ShapeTransform, gp: AddProcess, itemType:
 export function createProperty(store: Store, path: NBNode, dataType?: NBNode, nodeKind?: NBNode, minCount?: number, maxCount?: number): BlankNode | NamedNode {
     const newId = store.createBlankNode();
 
-    store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "path"), path)
+    store.addQuad(newId, SHACL.terms.path, path)
     if (dataType)
-        store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "datatype"), dataType)
+        store.addQuad(newId, SHACL.terms.datatype, dataType)
 
     if (nodeKind)
-        store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "nodeKind"), nodeKind)
+        store.addQuad(newId, SHACL.terms.nodeKind, nodeKind)
 
     if (minCount !== undefined)
-        store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "minCount"), literal(minCount))
+        store.addQuad(newId, SHACL.terms.minCount, literal(minCount))
     if (maxCount !== undefined)
-        store.addQuad(newId, createNSThing("http://www.w3.org/ns/shacl#", "maxCount"), literal(maxCount))
+        store.addQuad(newId, SHACL.terms.maxCount, literal(maxCount))
 
     return newId;
 }
