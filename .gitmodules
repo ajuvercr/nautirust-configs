@@ -4,3 +4,6 @@
 [submodule "runners/RMLStreamerRunner"]
 	path = runners/RMLStreamerRunner
 	url = git@github.com:s-minoo/RMLStreamerRunner.git
+[submodule "steps/sds-processors"]
+	path = steps/sds-processors
+	url = git@github.com:ajuvercr/sds-processors.git
