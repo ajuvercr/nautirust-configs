@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "args": {
+        "to": "Arthur"
+      },
+      "processorConfig": {
+        "args": [
+          {
+            "id": "to",
+            "type": "string"
+          }
+        ],
+        "config": {
+          "jsFile": "index.js",
+          "methodName": "sayHello"
+        },
+        "id": "SayHello",
+        "location": "/home/silvius/Projects/connector/nautirust-configs/steps/js-examples",
+        "runnerId": "JsRunner"
+      }
+    }
+  ]
+}
