@@ -1,0 +1,11 @@
+{
+    "id": "IngestData",
+    "runnerId": "JsRunner",
+    "config": {
+        "jsFile": "index.js",
+        "methodName": "ingestData"
+    },
+    "args": [
+        {"id": "data input", "type": "streamReader", "sourceIds": ["someField"] }
+    ]
+}

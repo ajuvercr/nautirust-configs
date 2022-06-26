@@ -1,0 +1,12 @@
+{
+    "id": "PassData",
+    "runnerId": "JsRunner",
+    "config": {
+        "jsFile": "index.js",
+        "methodName": "passData"
+    },
+    "args": [
+        {"id": "data input", "type": "streamReader", "sourceIds": ["someField"] },
+        {"id": "data output", "type": "streamWriter", "targetIds": ["someField"] }
+    ]
+}

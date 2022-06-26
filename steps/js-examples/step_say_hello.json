@@ -1,0 +1,11 @@
+{
+    "id": "SayHello",
+    "runnerId": "JsRunner",
+    "config": {
+        "jsFile": "index.js",
+        "methodName": "sayHello"
+    },
+    "args": [
+        {"id": "to", "type": "string" }
+    ]
+}
