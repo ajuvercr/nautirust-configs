@@ -5,7 +5,7 @@ export function sayHello(to: string) {
 }
 
 // define Stream Type
-type Data = { someField: {[label: string]: any} };
+type Data = { someField: { [label: string]: any } };
 
 export type StreamWriter<T> = {
     [P in keyof T]: Writer<T[P]>;
