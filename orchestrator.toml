@@ -1,2 +1,2 @@
-channels = "channels/*.json"
+channels = "channels/**/*.json"
 runners = "runners/*/runner.json"

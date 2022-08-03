@@ -7,3 +7,6 @@
 [submodule "steps/sds-processors"]
 	path = steps/sds-processors
 	url = git@github.com:ajuvercr/sds-processors.git
+[submodule "steps/ldes-ingestor"]
+	path = steps/ldes-ingestor
+	url = git@github.com:TREEcg/sds-storage-writer-mongo.git
