@@ -18,7 +18,7 @@ Inside steps/js-example there is a small ts example. After building it, it is re
 
 To execute the hello world function with nautirust, we first need to generate a pipeline configuration.
 ```
-nautirust generate -o say_hello.json steps/js-example/step_say_hello.json
+nautirust generate -o say_hello.json steps/js-examples/step_say_hello.json
 ```
 Nautirust will ask who to greet, input anything.
 Now nautirust saved the pipeline configuration as `say\_hello.json` and we can run this pipeline.
