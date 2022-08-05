@@ -20,7 +20,8 @@ To execute the hello world function with nautirust, we first need to generate a 
 ```
 nautirust generate -o say_hello.json steps/js-example/step_say_hello.json
 ```
-Nautirust will ask who to greet, input anything.
+Nautirust will ask who to greet, you can choose between a plain input, a file content, or the output of a previous step.
+No other steps are defined so let's choose `plain`, then input anything.
 Now nautirust saved the pipeline configuration as `say\_hello.json` and we can run this pipeline.
 ```
 nautirust prepare say_hello.json  # installs the jsRunner

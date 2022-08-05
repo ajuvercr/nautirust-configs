@@ -2,87 +2,39 @@
   "values": [
     {
       "args": {
-        "data input": [
-          {
-            "config": {
-              "host": "localhost",
-              "port": 3003,
-              "url": "ws://localhost:3003"
-            },
-            "id": "someField",
-            "serialization": "plain",
-            "type": "ws"
-          }
-        ]
+        "data input": {
+          "fields": {
+            "someField": {
+              "config": {
+                "onReplace": true,
+                "path": "data/dataIn.json"
+              },
+              "serialization": "json",
+              "type": "file"
+            }
+          },
+          "type": "StreamReader"
+        }
       },
       "processorConfig": {
         "args": [
           {
+            "default": false,
+            "description": "",
             "id": "data input",
             "sourceIds": [
               "someField"
             ],
-            "type": "streamReader"
+            "type": "streamReader",
+            "value": ""
           }
         ],
+        "build": null,
         "config": {
           "jsFile": "index.js",
           "methodName": "ingestData"
         },
         "id": "IngestData",
-        "location": "/home/silvius/Projects/connector/nautirust-configs/steps/js-examples",
-        "runnerId": "JsRunner"
-      }
-    },
-    {
-      "args": {
-        "data input": [
-          {
-            "config": {
-              "onReplace": true,
-              "path": "data/dataIn.json",
-              "readFirstContent": true
-            },
-            "id": "someField",
-            "serialization": "plain",
-            "type": "file"
-          }
-        ],
-        "data output": [
-          {
-            "config": {
-              "host": "localhost",
-              "port": 3003,
-              "url": "ws://localhost:3003"
-            },
-            "id": "someField",
-            "serialization": "plain",
-            "type": "ws"
-          }
-        ]
-      },
-      "processorConfig": {
-        "args": [
-          {
-            "id": "data input",
-            "sourceIds": [
-              "someField"
-            ],
-            "type": "streamReader"
-          },
-          {
-            "id": "data output",
-            "targetIds": [
-              "someField"
-            ],
-            "type": "streamWriter"
-          }
-        ],
-        "config": {
-          "jsFile": "index.js",
-          "methodName": "passData"
-        },
-        "id": "PassData",
         "location": "/home/silvius/Projects/connector/nautirust-configs/steps/js-examples",
         "runnerId": "JsRunner"
       }

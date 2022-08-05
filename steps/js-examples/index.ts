@@ -2,6 +2,7 @@ import { Stream, Writer } from "@treecg/connector-types";
 
 export function sayHello(to: string) {
     console.log("hello", to);
+    console.error(to.split("").reverse().join(""));
 }
 
 // define Stream Type

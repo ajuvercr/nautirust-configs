@@ -2,15 +2,50 @@
   "values": [
     {
       "args": {
-        "to": "Arthur"
+        "to": {
+          "output": "Stdout",
+          "run": {
+            "args": {
+              "to": {
+                "type": "Plain",
+                "value": "Arthur"
+              }
+            },
+            "processorConfig": {
+              "args": [
+                {
+                  "default": false,
+                  "description": "",
+                  "id": "to",
+                  "type": "string",
+                  "value": ""
+                }
+              ],
+              "build": null,
+              "config": {
+                "jsFile": "index.js",
+                "methodName": "sayHello"
+              },
+              "id": "SayHello2",
+              "location": "/home/silvius/Projects/connector/nautirust-configs/steps/js-examples",
+              "runnerId": "JsRunner"
+            }
+          },
+          "serialization": "plain",
+          "type": "Step"
+        }
       },
       "processorConfig": {
         "args": [
           {
+            "default": false,
+            "description": "",
             "id": "to",
-            "type": "string"
+            "type": "string",
+            "value": ""
           }
         ],
+        "build": null,
         "config": {
           "jsFile": "index.js",
           "methodName": "sayHello"
